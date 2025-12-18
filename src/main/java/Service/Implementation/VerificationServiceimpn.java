@@ -1,22 +1,40 @@
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.*;
+import com.example.demo.repository.*;
+import com.example.demo.service.VerificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
-public class VerificationService 
-{
-    @Autowired
-    private VerificationLogRepository verificationLogRepository;
-    @Autowired
-    private CertificateRepository certificateRepository;
-    public VerificationLog verifyCertificate(String verificationCode, String clientIp) 
-    {
-        Certificate cert = certificateRepository.findByVerificationCode(verificationCode);
-        VerificationLog log = new VerificationLog();
-        log.setVerificationCode(verificationCode);
-        log.setClientIp(clientIp);
-        log.setVerifiedAt(java.time.LocalDateTime.now());
-        log.setValid(cert != null);
-        return verificationLogRepository.save(log);
+@RequiredArgsConstructor
+public class VerificationServiceImpl implements VerificationService {
+    private final VerificationLogRepository logRepository;
+    private final CertificateRepository certificateRepository;
+
+    @Override
+    public VerificationLog verifyCertificate(String verificationCode, String clientIp) {
+        var certOpt = certificateRepository.findByVerificationCode(verificationCode);
+        String status = certOpt.isPresent() ? "SUCCESS" : "FAILED"; [cite: 292]
+
+        VerificationLog log = VerificationLog.builder()
+            .certificate(certOpt.orElse(null))
+            .verifiedAt(LocalDateTime.now()) [cite: 295]
+            .status(status)
+            .ipAddress(clientIp) [cite: 297]
+            .build();
+
+        return logRepository.save(log);
     }
-    public List<VerificationLog> getLogsByCertificate(Long certificateId) 
-    {
-        return verificationLogRepository.findByCertificateId(certificateId);
+
+    @Override
+    public List<VerificationLog> getLogsByCertificate(Long certificateId) {
+        Certificate certificate = certificateRepository.findById(certificateId)
+            .orElseThrow(() -> new RuntimeException("Certificate not found")); [cite: 300]
+        return logRepository.findAll().stream()
+            .filter(l -> l.getCertificate() != null && l.getCertificate().getId().equals(certificateId))
+            .toList();
     }
 }
