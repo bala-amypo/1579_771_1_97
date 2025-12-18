@@ -1,45 +1,22 @@
-package com.example.demo.model; // Ensure this matches your actual package structure
-
+package com.example.demo.entity;
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "verification_logs")
-public class VerificationLog {
-
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class VerificationLog 
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String verificationCode;
-    
-    private String clientIp;
-    
-    private LocalDateTime verifiedAt;
-    
-    private boolean isValid;
-
-    private Long certificateId;
-
-    // Default Constructor
-    public VerificationLog() {}
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getVerificationCode() { return verificationCode; }
-    public void setVerificationCode(String verificationCode) { this.verificationCode = verificationCode; }
-
-    public String getClientIp() { return clientIp; }
-    public void setClientIp(String clientIp) { this.clientIp = clientIp; }
-
-    public LocalDateTime getVerifiedAt() { return verifiedAt; }
-    public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
-
-    public boolean isValid() { return isValid; }
-    public void setValid(boolean valid) { isValid = valid; }
-
-    public Long getCertificateId() { return certificateId; }
-    public void setCertificateId(Long certificateId) { this.certificateId = certificateId; }
+    private Long id; [cite: 107]
+    @ManyToOne
+    @JoinColumn(name = "certificate_id")
+    private Certificate certificate; [cite: 108, 114]
+    private LocalDateTime verifiedAt; [cite: 109]
+    private String status; [cite: 110]
+    private String ipAddress; [cite: 111]
 }
