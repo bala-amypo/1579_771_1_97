@@ -4,15 +4,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "certificate_templates")
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class User {
+public class CertificateTemplate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
     @Column(unique = true)
-    private String email;
-    private String password;
-    private String role; // "ADMIN" or "STAFF"
+    private String templateName;
+    private String backgroundUrl;
+    private String fontStyle;
+    private String signatureName;
 }

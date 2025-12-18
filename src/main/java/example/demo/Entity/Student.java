@@ -2,17 +2,21 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "students")
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
-public class User {
+public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     @Column(unique = true)
     private String email;
-    private String password;
-    private String role; // "ADMIN" or "STAFF"
+    @Column(unique = true)
+    private String rollNumber;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Certificate> certificates;
 }
