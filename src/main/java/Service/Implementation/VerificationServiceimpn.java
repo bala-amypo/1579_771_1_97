@@ -37,4 +37,4 @@ public class VerificationServiceImpl implements VerificationService {
             .filter(l -> l.getCertificate() != null && l.getCertificate().getId().equals(certificateId))
             .toList();
     }
-}
+}   

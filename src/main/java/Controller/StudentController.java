@@ -1,17 +1,27 @@
+package com.example.demo.controller;
+
+import com.example.demo.entity.Student;
+import com.example.demo.service.StudentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
 @RestController
-@RequestMapping("/students")
-public class StudentController 
+@RequestMapping("/students") [cite: 322]
+@RequiredArgsConstructor
+public class StudentController
 {
-    @Autowired
-    private StudentService studentService;
-    @PostMapping("/")
-    public ResponseEntity<Student> addStudent(@RequestBody Student student) 
+    private final StudentService studentService;
+
+    @PostMapping [cite: 325]
+    public Student addStudent(@RequestBody Student student) 
     {
-        return ResponseEntity.ok(studentService.addStudent(student));
+        return studentService.addStudent(student); [cite: 327]
     }
-    @GetMapping("/")
-    public ResponseEntity<List<Student>> listAllStudents() 
+
+    @GetMapping [cite: 328]
+    public List<Student> getAllStudents() 
     {
-        return ResponseEntity.ok(studentService.getAllStudents());
+        return studentService.getAllStudents(); [cite: 330]
     }
 }
