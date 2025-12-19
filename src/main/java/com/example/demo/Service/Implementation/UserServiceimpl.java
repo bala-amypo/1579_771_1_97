@@ -7,34 +7,30 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService 
-{
+public class UserServiceimpl implements UserService {
+
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) 
-    {
+    public UserServiceimpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public User register(User user) 
-    {
-        if (user.getRole() == null) 
-        {
-            user.setRole("STAFF"); [cite: 41, 221]
+    public User register(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
         }
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) 
-        {
-            throw new RuntimeException("Email already exists"); [cite: 223]
+        if (user.getRole() == null) {
+            user.setRole("STAFF");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword())); [cite: 40, 222]
-        return userRepository.save(user); [cite: 224]
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
     @Override
     public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null); [cite: 225-227]
+        return userRepository.findByEmail(email).orElse(null);
     }
 }
