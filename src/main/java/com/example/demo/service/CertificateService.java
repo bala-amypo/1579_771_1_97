@@ -9,3 +9,4 @@ public interface CertificateService {
     Certificate findByVerificationCode(String code);
     List<Certificate> findByStudentId(Long studentId);
 }
+

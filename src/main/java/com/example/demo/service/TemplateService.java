@@ -8,3 +8,4 @@ public interface TemplateService {
     List<CertificateTemplate> getAllTemplates();
     CertificateTemplate findById(Long id);
 }
+
