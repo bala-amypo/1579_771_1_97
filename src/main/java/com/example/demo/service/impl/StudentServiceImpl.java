@@ -19,10 +19,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student addStudent(Student student) {
-        boolean emailExists = studentRepository.findByEmail(student.getEmail()).isPresent();
-        boolean rollExists = studentRepository.findByRollNumber(student.getRollNumber()).isPresent();
-
-        if (emailExists || rollExists) {
+        if (studentRepository.findByEmail(student.getEmail()).isPresent() ||
+            studentRepository.findByRollNumber(student.getRollNumber()).isPresent()) {
             throw new RuntimeException("Student email exists");
         }
         return studentRepository.save(student);

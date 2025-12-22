@@ -25,18 +25,14 @@ public class VerificationServiceImpl implements VerificationService {
 
     @Override
     public VerificationLog verifyCertificate(String verificationCode, String clientIp) {
-        VerificationLog.VerificationLogBuilder builder = VerificationLog.builder()
-                .verifiedAt(LocalDateTime.now())
-                .ipAddress(clientIp);
-
         Certificate certificate = certificateRepository.findByVerificationCode(verificationCode).orElse(null);
-        if (certificate != null) {
-            builder.certificate(certificate).status("SUCCESS");
-        } else {
-            builder.status("FAILED");
-        }
 
-        VerificationLog log = builder.build();
+        VerificationLog log = new VerificationLog();
+        log.setCertificate(certificate);
+        log.setVerifiedAt(LocalDateTime.now());
+        log.setIpAddress(clientIp);
+        log.setStatus(certificate != null ? "SUCCESS" : "FAILED");
+
         return logRepository.save(log);
     }
 
@@ -44,9 +40,6 @@ public class VerificationServiceImpl implements VerificationService {
     public List<VerificationLog> getLogsByCertificate(Long certificateId) {
         Certificate certificate = certificateRepository.findById(certificateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
-        return certificate.getLogs() != null ? certificate.getLogs() : logRepository.findAll()
-                .stream()
-                .filter(l -> l.getCertificate() != null && l.getCertificate().getId().equals(certificateId))
-                .toList();
+        return certificate.getLogs();
     }
 }

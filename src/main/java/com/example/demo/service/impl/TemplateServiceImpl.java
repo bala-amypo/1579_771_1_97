@@ -40,9 +40,6 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     private void validateUrl(String urlStr) {
-        if (urlStr == null || urlStr.isBlank()) {
-            throw new RuntimeException("Invalid template data");
-        }
         try {
             new URL(urlStr);
         } catch (MalformedURLException e) {

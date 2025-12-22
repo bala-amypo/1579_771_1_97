@@ -38,18 +38,16 @@ public class CertificateServiceImpl implements CertificateService {
         CertificateTemplate template = templateRepository.findById(templateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
 
-        String verificationCode = "VC-" + UUID.randomUUID().toString();
-        String qrBase64 = Base64.getEncoder().encodeToString(
-                verificationCode.getBytes(StandardCharsets.UTF_8));
+        String verificationCode = "VC-" + UUID.randomUUID();
+        String qrBase64 = Base64.getEncoder().encodeToString(verificationCode.getBytes(StandardCharsets.UTF_8));
         String dataUrl = "data:image/png;base64," + qrBase64;
 
-        Certificate certificate = Certificate.builder()
-                .student(student)
-                .template(template)
-                .issuedDate(LocalDate.now())
-                .verificationCode(verificationCode)
-                .qrCodeUrl(dataUrl)
-                .build();
+        Certificate certificate = new Certificate();
+        certificate.setStudent(student);
+        certificate.setTemplate(template);
+        certificate.setIssuedDate(LocalDate.now());
+        certificate.setVerificationCode(verificationCode);
+        certificate.setQrCodeUrl(dataUrl);
 
         return certificateRepository.save(certificate);
     }
