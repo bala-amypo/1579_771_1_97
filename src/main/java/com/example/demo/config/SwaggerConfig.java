@@ -8,17 +8,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SwaggerConfig 
-{
+public class SwaggerConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() 
-    {
+    public OpenAPI customOpenAPI() {
         return new OpenAPI()
-            .info(new Info().title("Digital Certificate Generator API").version("1.0"))
+            .info(new Info()
+                .title("Digital Certificate Generator API")
+                .version("1.0")
+                .description("API documentation for Digital Certificate Generator"))
             .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
             .components(new io.swagger.v3.oas.models.Components()
                 .addSecuritySchemes("bearerAuth",
-                    new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")));
     }
 }
