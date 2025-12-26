@@ -1,9 +1,9 @@
+// src/main/java/com/example/demo/service/UserService.java
 package com.example.demo.service;
 
-import com.example.demo.dto.UserDTO;
-import java.util.List;
+import com.example.demo.entity.User;
 
 public interface UserService {
-    List<UserDTO> getAll();
-    UserDTO create(UserDTO dto);
+  User register(User user);
+  User findByEmail(String email);
 }
