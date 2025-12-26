@@ -1,33 +1,26 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.Student;
+import com.example.demo.dto.StudentDTO;
 import com.example.demo.service.StudentService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/students")
-@Tag(name = "Students")
+@RequestMapping("/api/students")
 public class StudentController {
 
-  private final StudentService studentService;
+    private final StudentService service;
 
-  public StudentController(StudentService studentService) {
-    this.studentService = studentService;
-  }
+    public StudentController(StudentService service) { this.service = service; }
 
-  @PostMapping
-  @Operation(summary = "Add student")
-  public Student add(@RequestBody Student student) {
-    return studentService.addStudent(student);
-  }
+    @GetMapping
+    public List<StudentDTO> getAll() {
+        return service.getAll();
+    }
 
-  @GetMapping
-  @Operation(summary = "List students")
-  public List<Student> list() {
-    return studentService.getAllStudents();
-  }
+    @PostMapping
+    public StudentDTO create(@RequestBody StudentDTO dto) {
+        return service.create(dto);
+    }
 }

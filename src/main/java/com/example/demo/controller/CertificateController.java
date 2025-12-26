@@ -1,7 +1,7 @@
-package com.example.certificates.controller;
+package com.example.demo.controller;
 
-import com.example.certificates.dto.CertificateDTO;
-import com.example.certificates.service.CertificateService;
+import com.example.demo.dto.CertificateDTO;
+import com.example.demo.service.CertificateService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,17 +12,15 @@ public class CertificateController {
 
     private final CertificateService service;
 
-    public CertificateController(CertificateService service) {
-        this.service = service;
-    }
+    public CertificateController(CertificateService service) { this.service = service; }
 
     @GetMapping
-    public List<CertificateDTO> getCertificates() {
-        return service.getAllCertificates();
+    public List<CertificateDTO> getAll() {
+        return service.getAll();
     }
 
     @PostMapping
-    public CertificateDTO createCertificate(@RequestBody CertificateDTO dto) {
-        return service.createCertificate(dto);
+    public CertificateDTO create(@RequestBody CertificateDTO dto) {
+        return service.create(dto);
     }
 }

@@ -1,35 +1,26 @@
 package com.example.demo.controller;
 
-import com.example.demo.entity.VerificationLog;
-import com.example.demo.service.VerificationService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.example.demo.dto.VerificationLogDTO;
+import com.example.demo.service.VerificationLogService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/verify")
-@Tag(name = "Verification")
-public class VerificationController {
+@RequestMapping("/api/verification-logs")
+public class VerificationLogController {
 
-  private final VerificationService verificationService;
+    private final VerificationLogService service;
 
-  public VerificationController(VerificationService verificationService) {
-    this.verificationService = verificationService;
-  }
+    public VerificationLogController(VerificationLogService service) { this.service = service; }
 
-  @PostMapping("/{verificationCode}")
-  @Operation(summary = "Verify certificate and record log")
-  public VerificationLog verify(@PathVariable String verificationCode,
-                                @RequestHeader(value = "X-Client-IP", required = false) String clientIp) {
-    String ip = (clientIp == null || clientIp.isBlank()) ? "0.0.0.0" : clientIp;
-    return verificationService.verifyCertificate(verificationCode, ip);
-  }
+    @GetMapping
+    public List<VerificationLogDTO> getAll() {
+        return service.getAll();
+    }
 
-  @GetMapping("/logs/{certificateId}")
-  @Operation(summary = "Get verification logs for certificate")
-  public List<VerificationLog> getLogs(@PathVariable Long certificateId) {
-    return verificationService.getLogsByCertificate(certificateId);
-  }
+    @PostMapping
+    public VerificationLogDTO create(@RequestBody VerificationLogDTO dto) {
+        return service.create(dto);
+    }
 }
