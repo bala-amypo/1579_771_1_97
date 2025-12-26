@@ -9,44 +9,39 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import io.jsonwebtoken.Claims;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JwtUtil jwtUtil;
+  private final JwtUtil jwtUtil;
 
-    public JwtFilter() {
-        // In production, inject via configuration
-        this.jwtUtil = new JwtUtil("super-secret-key", 3600_000L);
-    }
+  public JwtFilter(JwtUtil jwtUtil) {
+    this.jwtUtil = jwtUtil;
+  }
 
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.startsWith("/auth") || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs");
-    }
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    throws ServletException, IOException {
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            if (jwtUtil.validateToken(token)) {
-                Map<String, Object> claims = jwtUtil.parseToken(token);
-                String email = String.valueOf(claims.getOrDefault("sub", ""));
-                String role = String.valueOf(claims.getOrDefault("role", "STAFF"));
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(email, null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        }
-        filterChain.doFilter(request, response);
+    String auth = request.getHeader("Authorization");
+    if (auth != null && auth.startsWith("Bearer ")) {
+      String token = auth.substring(7);
+      if (jwtUtil.validateToken(token)) {
+        Claims claims = jwtUtil.parseToken(token).getBody();
+        String email = claims.get("email", String.class);
+        String role = claims.get("role", String.class);
+        var authToken = new UsernamePasswordAuthenticationToken(
+          email,
+          null,
+          role != null ? List.of(new SimpleGrantedAuthority("ROLE_" + role)) : List.of()
+        );
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+      }
     }
+    chain.doFilter(request, response);
+  }
 }
