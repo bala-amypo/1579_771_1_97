@@ -8,28 +8,25 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-  private final UserRepository userRepository;
-  private final BCryptPasswordEncoder encoder;
-
-  public UserServiceImpl(UserRepository userRepository) {
-    this.userRepository = userRepository;
-    this.encoder = new BCryptPasswordEncoder();
-  }
-
-  @Override
-  public User register(User user) {
-    if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-      throw new RuntimeException("Student email exists"); // required keyword per constraints
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
-    String role = (user.getRole() == null || user.getRole().isBlank()) ? "STAFF" : user.getRole();
-    user.setRole(role);
-    user.setPassword(encoder.encode(user.getPassword()));
-    return userRepository.save(user);
-  }
 
-  @Override
-  public User findByEmail(String email) {
-    return userRepository.findByEmail(email).orElse(null);
-  }
+    @Override
+    public User register(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Student email exists");
+        }
+        user.setRole(user.getRole() == null ? "STAFF" : user.getRole());
+        user.setPassword(encoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
 }
