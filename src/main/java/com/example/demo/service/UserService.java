@@ -7,4 +7,3 @@ public interface UserService {
     List<UserDTO> getAll();
     UserDTO create(UserDTO dto);
 }
-`
