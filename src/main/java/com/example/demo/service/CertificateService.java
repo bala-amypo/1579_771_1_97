@@ -1,9 +1,13 @@
+// src/main/java/com/example/demo/service/CertificateService.java
 package com.example.demo.service;
 
-import com.example.demo.dto.CertificateDTO;
+import com.example.demo.entity.Certificate;
+
 import java.util.List;
 
 public interface CertificateService {
-    List<CertificateDTO> getAll();
-    CertificateDTO create(CertificateDTO dto);
+  Certificate generateCertificate(Long studentId, Long templateId);
+  Certificate getCertificate(Long certificateId);
+  Certificate findByVerificationCode(String code);
+  List<Certificate> findByStudentId(Long studentId);
 }

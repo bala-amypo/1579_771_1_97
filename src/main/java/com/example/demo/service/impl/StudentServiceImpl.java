@@ -1,38 +1,38 @@
+// src/main/java/com/example/demo/service/impl/StudentServiceImpl.java
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.StudentDTO;
 import com.example.demo.entity.Student;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.StudentRepository;
 import com.example.demo.service.StudentService;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Service
 public class StudentServiceImpl implements StudentService {
 
-    private final StudentRepository repository;
+  private final StudentRepository studentRepository;
 
-    public StudentServiceImpl(StudentRepository repository) {
-        this.repository = repository;
+  public StudentServiceImpl(StudentRepository studentRepository) {
+    this.studentRepository = studentRepository;
+  }
+
+  @Override
+  public Student addStudent(Student student) {
+    if (studentRepository.findByEmail(student.getEmail()).isPresent()
+        || studentRepository.findByRollNumber(student.getRollNumber()).isPresent()) {
+      throw new RuntimeException("Student email exists");
     }
+    return studentRepository.save(student);
+  }
 
-    @Override
-    public List<StudentDTO> getAll() {
-        return repository.findAll().stream()
-                .map(s -> new StudentDTO(s.getId(), s.getName(), s.getEmail(), s.getRollNumber()))
-                .collect(Collectors.toList());
-    }
+  @Override
+  public List<Student> getAllStudents() {
+    return studentRepository.findAll();
+  }
 
-    @Override
-    public StudentDTO create(StudentDTO dto) {
-        Student s = new Student();
-        s.setName(dto.getName());
-        s.setEmail(dto.getEmail());
-        s.setRollNumber(dto.getRollNumber());
-
-        Student saved = repository.save(s);
-        return new StudentDTO(saved.getId(), saved.getName(), saved.getEmail(), saved.getRollNumber());
-    }
+  @Override
+  public Student findById(Long id) {
+    return studentRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+  }
 }

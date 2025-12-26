@@ -1,9 +1,12 @@
+// src/main/java/com/example/demo/service/TemplateService.java
 package com.example.demo.service;
 
-import com.example.demo.dto.CertificateTemplateDTO;
+import com.example.demo.entity.CertificateTemplate;
+
 import java.util.List;
 
-public interface CertificateTemplateService {
-    List<CertificateTemplateDTO> getAll();
-    CertificateTemplateDTO create(CertificateTemplateDTO dto);
+public interface TemplateService {
+  CertificateTemplate addTemplate(CertificateTemplate template);
+  List<CertificateTemplate> getAllTemplates();
+  CertificateTemplate findById(Long id);
 }

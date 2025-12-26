@@ -1,41 +1,48 @@
+// src/main/java/com/example/demo/service/impl/TemplateServiceImpl.java
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.CertificateTemplateDTO;
 import com.example.demo.entity.CertificateTemplate;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CertificateTemplateRepository;
-import com.example.demo.service.CertificateTemplateService;
-import org.springframework.stereotype.Service;
+import com.example.demo.service.TemplateService;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Service
-public class CertificateTemplateServiceImpl implements CertificateTemplateService {
+public class TemplateServiceImpl implements TemplateService {
 
-    private final CertificateTemplateRepository repository;
+  private final CertificateTemplateRepository templateRepository;
 
-    public CertificateTemplateServiceImpl(CertificateTemplateRepository repository) {
-        this.repository = repository;
+  public TemplateServiceImpl(CertificateTemplateRepository templateRepository) {
+    this.templateRepository = templateRepository;
+  }
+
+  @Override
+  public CertificateTemplate addTemplate(CertificateTemplate template) {
+    if (templateRepository.findByTemplateName(template.getTemplateName()).isPresent()) {
+      throw new RuntimeException("Template name exists");
     }
+    validateUrl(template.getBackgroundUrl());
+    return templateRepository.save(template);
+  }
 
-    @Override
-    public List<CertificateTemplateDTO> getAll() {
-        return repository.findAll().stream()
-                .map(t -> new CertificateTemplateDTO(
-                        t.getId(), t.getTemplateName(), t.getBackgroundUrl(), t.getFontStyle(), t.getSignatureName()))
-                .collect(Collectors.toList());
+  private void validateUrl(String url) {
+    try {
+      new URL(url);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException("Invalid template backgroundUrl");
     }
+  }
 
-    @Override
-    public CertificateTemplateDTO create(CertificateTemplateDTO dto) {
-        CertificateTemplate t = new CertificateTemplate();
-        t.setTemplateName(dto.getTemplateName());
-        t.setBackgroundUrl(dto.getBackgroundUrl());
-        t.setFontStyle(dto.getFontStyle());
-        t.setSignatureName(dto.getSignatureName());
+  @Override
+  public List<CertificateTemplate> getAllTemplates() {
+    return templateRepository.findAll();
+  }
 
-        CertificateTemplate saved = repository.save(t);
-        return new CertificateTemplateDTO(
-                saved.getId(), saved.getTemplateName(), saved.getBackgroundUrl(), saved.getFontStyle(), saved.getSignatureName());
-    }
+  @Override
+  public CertificateTemplate findById(Long id) {
+    return templateRepository.findById(id)
+      .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
+  }
 }
