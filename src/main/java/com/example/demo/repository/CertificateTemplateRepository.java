@@ -1,9 +1,7 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.CertificateTemplate;
+import com.example.demo.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
 
-public interface CertificateTemplateRepository extends JpaRepository<CertificateTemplate, Long> {
-    Optional<CertificateTemplate> findByTemplateName(String templateName);
+public interface CertificateTemplateRepository extends JpaRepository<User, Long> {
 }
