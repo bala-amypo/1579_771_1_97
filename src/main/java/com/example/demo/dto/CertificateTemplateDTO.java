@@ -17,4 +17,18 @@ public class CertificateTemplateDTO {
     }
 
     // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getTemplateName() { return templateName; }
+    public void setTemplateName(String templateName) { this.templateName = templateName; }
+
+    public String getBackgroundUrl() { return backgroundUrl; }
+    public void setBackgroundUrl(String backgroundUrl) { this.backgroundUrl = backgroundUrl; }
+
+    public String getFontStyle() { return fontStyle; }
+    public void setFontStyle(String fontStyle) { this.fontStyle = fontStyle; }
+
+    public String getSignatureName() { return signatureName; }
+    public void setSignatureName(String signatureName) { this.signatureName = signatureName; }
 }
