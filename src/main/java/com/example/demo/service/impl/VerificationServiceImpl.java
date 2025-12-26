@@ -12,10 +12,33 @@ import java.util.List;
 
 @Service
 public class VerificationServiceImpl implements VerificationService {
+
     private final CertificateRepository certificateRepository;
     private final VerificationLogRepository logRepository;
 
     public VerificationServiceImpl(CertificateRepository certificateRepository,
                                    VerificationLogRepository logRepository) {
         this.certificateRepository = certificateRepository;
-        this.log
+        this.logRepository = logRepository;
+    }
+
+    @Override
+    public VerificationLog verifyCertificate(String verificationCode, String clientIp) {
+        Certificate cert = certificateRepository.findByVerificationCode(verificationCode)
+                .orElseThrow(() -> new RuntimeException("Certificate not found"));
+
+        VerificationLog log = VerificationLog.builder()
+                .certificate(cert)
+                .verifiedAt(LocalDateTime.now())
+                .status("SUCCESS")
+                .ipAddress(clientIp)
+                .build();
+
+        return logRepository.save(log);
+    }
+
+    @Override
+    public List<VerificationLog> getLogsByCertificate(Long certificateId) {
+        return logRepository.findByCertificateId(certificateId);
+    }
+}
