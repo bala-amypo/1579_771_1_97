@@ -1,26 +1,34 @@
+// src/main/java/com/example/demo/controller/VerificationController.java
 package com.example.demo.controller;
 
-import com.example.demo.dto.VerificationLogDTO;
-import com.example.demo.service.VerificationLogService;
+import com.example.demo.entity.VerificationLog;
+import com.example.demo.service.VerificationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/verification-logs")
-public class VerificationLogController {
+@RequestMapping("/verify")
+@Tag(name = "Verification")
+public class VerificationController {
 
-    private final VerificationLogService service;
+  private final VerificationService verificationService;
 
-    public VerificationLogController(VerificationLogService service) { this.service = service; }
+  public VerificationController(VerificationService verificationService) {
+    this.verificationService = verificationService;
+  }
 
-    @GetMapping
-    public List<VerificationLogDTO> getAll() {
-        return service.getAll();
-    }
+  @PostMapping("/{verificationCode}")
+  public ResponseEntity<VerificationLog> verify(@PathVariable String verificationCode, HttpServletRequest request) {
+    String ip = request.getRemoteAddr();
+    return ResponseEntity.ok(verificationService.verifyCertificate(verificationCode, ip));
+  }
 
-    @PostMapping
-    public VerificationLogDTO create(@RequestBody VerificationLogDTO dto) {
-        return service.create(dto);
-    }
+  @GetMapping("/logs/{certificateId}")
+  public ResponseEntity<List<VerificationLog>> logs(@PathVariable Long certificateId) {
+    return ResponseEntity.ok(verificationService.getLogsByCertificate(certificateId));
+  }
 }
