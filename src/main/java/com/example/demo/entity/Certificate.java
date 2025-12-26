@@ -47,4 +47,3 @@ public class Certificate {
     public String getVerificationCode() { return verificationCode; }
     public void setVerificationCode(String verificationCode) { this.verificationCode = verificationCode; }
 }
-`
