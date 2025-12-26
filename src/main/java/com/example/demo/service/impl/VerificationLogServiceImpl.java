@@ -1,60 +1,47 @@
+// src/main/java/com/example/demo/service/impl/VerificationServiceImpl.java
 package com.example.demo.service.impl;
 
-import com.example.demo.dto.VerificationLogDTO;
 import com.example.demo.entity.Certificate;
 import com.example.demo.entity.VerificationLog;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.CertificateRepository;
 import com.example.demo.repository.VerificationLogRepository;
-import com.example.demo.service.VerificationLogService;
-import org.springframework.stereotype.Service;
+import com.example.demo.service.VerificationService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@Service
-public class VerificationLogServiceImpl implements VerificationLogService {
+public class VerificationServiceImpl implements VerificationService {
 
-    private final VerificationLogRepository repository;
-    private final CertificateRepository certificateRepository;
+  private final CertificateRepository certificateRepository;
+  private final VerificationLogRepository logRepository;
 
-    public VerificationLogServiceImpl(VerificationLogRepository repository,
-                                      CertificateRepository certificateRepository) {
-        this.repository = repository;
-        this.certificateRepository = certificateRepository;
-    }
+  public VerificationServiceImpl(CertificateRepository certificateRepository,
+                                 VerificationLogRepository logRepository) {
+    this.certificateRepository = certificateRepository;
+    this.logRepository = logRepository;
+  }
 
-    @Override
-    public List<VerificationLogDTO> getAll() {
-        return repository.findAll().stream()
-                .map(v -> new VerificationLogDTO(
-                        v.getId(),
-                        v.getCertificate().getId(),
-                        v.getVerifiedAt(),
-                        v.getStatus(),
-                        v.getIpAddress()))
-                .collect(Collectors.toList());
-    }
+  @Override
+  public VerificationLog verifyCertificate(String verificationCode, String clientIp) {
+    Optional<Certificate> certOpt = certificateRepository.findByVerificationCode(verificationCode);
+    VerificationLog log = VerificationLog.builder()
+      .certificate(certOpt.orElse(null))
+      .verifiedAt(LocalDateTime.now())
+      .status(certOpt.isPresent() ? "SUCCESS" : "FAILED")
+      .ipAddress(clientIp)
+      .build();
+    return logRepository.save(log);
+  }
 
-    @Override
-    public VerificationLogDTO create(VerificationLogDTO dto) {
-        Optional<Certificate> certOpt = certificateRepository.findById(dto.getCertificateId());
-        if (certOpt.isEmpty()) {
-            throw new IllegalArgumentException("Invalid certificateId");
-        }
-
-        VerificationLog v = new VerificationLog();
-        v.setCertificate(certOpt.get());
-        v.setVerifiedAt(dto.getVerifiedAt());
-        v.setStatus(dto.getStatus());
-        v.setIpAddress(dto.getIpAddress());
-
-        VerificationLog saved = repository.save(v);
-        return new VerificationLogDTO(
-                saved.getId(),
-                saved.getCertificate().getId(),
-                saved.getVerifiedAt(),
-                saved.getStatus(),
-                saved.getIpAddress());
-    }
+  @Override
+  public List<VerificationLog> getLogsByCertificate(Long certificateId) {
+    Certificate cert = certificateRepository.findById(certificateId)
+      .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+    // Simple approach: fetch all and filter (could be optimized with a query)
+    return logRepository.findAll().stream()
+      .filter(l -> l.getCertificate() != null && cert.getId().equals(l.getCertificate().getId()))
+      .toList();
+  }
 }
