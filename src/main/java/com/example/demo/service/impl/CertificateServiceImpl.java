@@ -1,5 +1,6 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.CertificateDTO;
 import com.example.demo.entity.Certificate;
 import com.example.demo.entity.CertificateTemplate;
 import com.example.demo.entity.Student;
@@ -9,13 +10,13 @@ import com.example.demo.repository.StudentRepository;
 import com.example.demo.service.CertificateService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
+
     private final CertificateRepository certificateRepository;
     private final StudentRepository studentRepository;
     private final CertificateTemplateRepository templateRepository;
@@ -29,43 +30,40 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public Certificate generateCertificate(Long studentId, Long templateId) {
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        CertificateTemplate template = templateRepository.findById(templateId)
-                .orElseThrow(() -> new RuntimeException("Template not found"));
-
-        String verificationCode = "VC-" + UUID.randomUUID();
-        String qrDataUrl = "data:image/png;base64," +
-                Base64.getEncoder().encodeToString(("QR:" + verificationCode).getBytes());
-
-        Certificate cert = Certificate.builder()
-                .student(student)
-                .template(template)
-                .verificationCode(verificationCode)
-                .qrCodeUrl(qrDataUrl)
-                .issuedDate(LocalDate.now())
-                .build();
-
-        return certificateRepository.save(cert);
+    public List<CertificateDTO> getAll() {
+        return certificateRepository.findAll().stream()
+                .map(c -> new CertificateDTO(
+                        c.getId(),
+                        c.getStudent().getId(),
+                        c.getTemplate().getId(),
+                        c.getIssuedDate(),
+                        c.getQrCodeUrl(),
+                        c.getVerificationCode()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Certificate getCertificate(Long certificateId) {
-        return certificateRepository.findById(certificateId)
-                .orElseThrow(() -> new RuntimeException("Certificate not found"));
-    }
+    public CertificateDTO create(CertificateDTO dto) {
+        Optional<Student> studentOpt = studentRepository.findById(dto.getStudentId());
+        Optional<CertificateTemplate> templateOpt = templateRepository.findById(dto.getTemplateId());
+        if (studentOpt.isEmpty() || templateOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invalid studentId or templateId");
+        }
 
-    @Override
-    public Certificate findByVerificationCode(String code) {
-        return certificateRepository.findByVerificationCode(code)
-                .orElseThrow(() -> new RuntimeException("Certificate not found"));
-    }
+        Certificate c = new Certificate();
+        c.setStudent(studentOpt.get());
+        c.setTemplate(templateOpt.get());
+        c.setIssuedDate(dto.getIssuedDate());
+        c.setQrCodeUrl(dto.getQrCodeUrl());
+        c.setVerificationCode(dto.getVerificationCode());
 
-    @Override
-    public List<Certificate> findByStudentId(Long studentId) {
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        return certificateRepository.findByStudent(student);
+        Certificate saved = certificateRepository.save(c);
+        return new CertificateDTO(
+                saved.getId(),
+                saved.getStudent().getId(),
+                saved.getTemplate().getId(),
+                saved.getIssuedDate(),
+                saved.getQrCodeUrl(),
+                saved.getVerificationCode());
     }
 }

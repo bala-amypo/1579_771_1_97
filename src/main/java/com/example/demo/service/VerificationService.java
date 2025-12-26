@@ -1,9 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.VerificationLog;
+import com.example.demo.dto.VerificationLogDTO;
 import java.util.List;
 
-public interface VerificationService {
-    VerificationLog verifyCertificate(String verificationCode, String clientIp);
-    List<VerificationLog> getLogsByCertificate(Long certificateId);
+public interface VerificationLogService {
+    List<VerificationLogDTO> getAll();
+    VerificationLogDTO create(VerificationLogDTO dto);
 }

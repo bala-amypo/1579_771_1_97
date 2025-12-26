@@ -1,32 +1,39 @@
 package com.example.demo.service.impl;
 
+import com.example.demo.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.UserService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    private final UserRepository repository;
+
+    public UserServiceImpl(UserRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public User register(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("Student email exists");
-        }
-        user.setRole(user.getRole() == null ? "STAFF" : user.getRole());
-        user.setPassword(encoder.encode(user.getPassword()));
-        return userRepository.save(user);
+    public List<UserDTO> getAll() {
+        return repository.findAll().stream()
+                .map(u -> new UserDTO(u.getId(), u.getName(), u.getEmail(), u.getRole()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public UserDTO create(UserDTO dto) {
+        User user = new User();
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setPassword("hashed"); // replace with real hashing
+        user.setRole(dto.getRole() != null ? dto.getRole() : "STAFF");
+
+        User saved = repository.save(user);
+        return new UserDTO(saved.getId(), saved.getName(), saved.getEmail(), saved.getRole());
     }
 }
