@@ -1,37 +1,28 @@
-package com.example.demo.controller;
+package com.example.certificates.controller;
 
-import com.example.demo.entity.Certificate;
-import com.example.demo.service.CertificateService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.example.certificates.dto.CertificateDTO;
+import com.example.certificates.service.CertificateService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/certificates")
-@Tag(name = "Certificates")
+@RequestMapping("/api/certificates")
 public class CertificateController {
 
-  private final CertificateService certificateService;
+    private final CertificateService service;
 
-  public CertificateController(CertificateService certificateService) {
-    this.certificateService = certificateService;
-  }
+    public CertificateController(CertificateService service) {
+        this.service = service;
+    }
 
-  @PostMapping("/generate/{studentId}/{templateId}")
-  @Operation(summary = "Generate certificate")
-  public Certificate generate(@PathVariable Long studentId, @PathVariable Long templateId) {
-    return certificateService.generateCertificate(studentId, templateId);
-  }
+    @GetMapping
+    public List<CertificateDTO> getCertificates() {
+        return service.getAllCertificates();
+    }
 
-  @GetMapping("/{certificateId}")
-  @Operation(summary = "Get certificate by ID")
-  public Certificate get(@PathVariable Long certificateId) {
-    return certificateService.getCertificate(certificateId);
-  }
-
-  @GetMapping("/verify/code/{verificationCode}")
-  @Operation(summary = "Find certificate by verification code")
-  public Certificate findByCode(@PathVariable String verificationCode) {
-    return certificateService.findByVerificationCode(verificationCode);
-  }
+    @PostMapping
+    public CertificateDTO createCertificate(@RequestBody CertificateDTO dto) {
+        return service.createCertificate(dto);
+    }
 }
