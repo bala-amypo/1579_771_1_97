@@ -4,24 +4,24 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(uniqueConstraints = {
+@Table(name = "students",
+  uniqueConstraints = {
     @UniqueConstraint(columnNames = "email"),
     @UniqueConstraint(columnNames = "rollNumber")
-})
+  })
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false, unique = true)
-    private String rollNumber;
+  @Column(nullable = false, unique = true)
+  private String rollNumber;
 }
