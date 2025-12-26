@@ -1,10 +1,17 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
+import lombok.*;
 
 @Entity
-@Table(name = "students")
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = "email"),
+    @UniqueConstraint(columnNames = "rollNumber")
+})
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -12,37 +19,9 @@ public class Student {
 
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String rollNumber;
-
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<Certificate> certificates;
-
-    public Student() {}
-
-    public Student(Long id, String name, String email, String rollNumber) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.rollNumber = rollNumber;
-    }
-
-    // Getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public String getRollNumber() { return rollNumber; }
-    public void setRollNumber(String rollNumber) { this.rollNumber = rollNumber; }
-
-    public List<Certificate> getCertificates() { return certificates; }
-    public void setCertificates(List<Certificate> certificates) { this.certificates = certificates; }
 }

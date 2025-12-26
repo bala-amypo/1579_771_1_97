@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Student;
 import com.example.demo.service.StudentService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,12 +17,12 @@ public class StudentController {
     }
 
     @PostMapping
-    public ResponseEntity<Student> add(@RequestBody Student student) {
-        return ResponseEntity.ok(studentService.addStudent(student));
+    public Student add(@RequestBody Student student) {
+        return studentService.addStudent(student);
     }
 
     @GetMapping
-    public ResponseEntity<List<Student>> list() {
-        return ResponseEntity.ok(studentService.getAllStudents());
+    public List<Student> list() {
+        return studentService.getAllStudents();
     }
 }
