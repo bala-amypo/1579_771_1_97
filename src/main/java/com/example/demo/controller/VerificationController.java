@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Verification")
 @RestController
 @RequestMapping("/verify")
+@Tag(name = "Verification", description = "Endpoints for certificate verification and audit logs")
 public class VerificationController {
 
     private final VerificationService verificationService;
@@ -21,17 +21,17 @@ public class VerificationController {
         this.verificationService = verificationService;
     }
 
-    @Operation(summary = "Verify certificate by code and record a log")
     @PostMapping("/{verificationCode}")
-    public ResponseEntity<VerificationLog> verify(@PathVariable String verificationCode,
-                                                  HttpServletRequest request) {
+    @Operation(summary = "Verify a certificate and log the attempt")
+    public ResponseEntity<VerificationLog> verify(@PathVariable String verificationCode, HttpServletRequest request) {
+        // Reads client IP from request for audit logging
         String clientIp = request.getRemoteAddr();
         return ResponseEntity.ok(verificationService.verifyCertificate(verificationCode, clientIp));
     }
 
-    @Operation(summary = "Get verification logs for certificate")
     @GetMapping("/logs/{certificateId}")
-    public ResponseEntity<List<VerificationLog>> logs(@PathVariable Long certificateId) {
+    @Operation(summary = "Get all verification attempts for a specific certificate")
+    public ResponseEntity<List<VerificationLog>> getLogs(@PathVariable Long certificateId) {
         return ResponseEntity.ok(verificationService.getLogsByCertificate(certificateId));
     }
 }

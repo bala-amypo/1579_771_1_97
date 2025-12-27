@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Templates")
 @RestController
 @RequestMapping("/templates")
+@Tag(name = "Certificate Templates", description = "Endpoints for certificate design templates")
 public class TemplateController {
 
     private final TemplateService templateService;
@@ -20,14 +20,14 @@ public class TemplateController {
         this.templateService = templateService;
     }
 
-    @Operation(summary = "Add a certificate template")
     @PostMapping
+    @Operation(summary = "Create a new certificate template")
     public ResponseEntity<CertificateTemplate> add(@RequestBody CertificateTemplate template) {
         return ResponseEntity.ok(templateService.addTemplate(template));
     }
 
-    @Operation(summary = "List all templates")
     @GetMapping
+    @Operation(summary = "List all certificate templates")
     public ResponseEntity<List<CertificateTemplate>> list() {
         return ResponseEntity.ok(templateService.getAllTemplates());
     }
