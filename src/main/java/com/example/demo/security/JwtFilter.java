@@ -1,7 +1,6 @@
 package com.example.demo.security;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,11 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collections;
 
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -24,26 +22,32 @@ public class JwtFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
-        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            
             if (jwtUtil.validateToken(token)) {
-                Jws<Claims> jws = jwtUtil.parseToken(token);
-                Claims claims = jws.getBody();
+                Claims claims = jwtUtil.parseToken(token).getBody();
                 String email = claims.getSubject();
-                String role = claims.get("role", String.class);
-                var auth = new UsernamePasswordAuthenticationToken(
-                        email,
-                        null,
-                        role != null ? List.of(new SimpleGrantedAuthority("ROLE_" + role)) : List.of()
-                );
-                SecurityContextHolder.getContext().setAuthentication(auth);
+                String role = (String) claims.get("role");
+
+                if (email != null) {
+                    // Create authority from role (e.g., ROLE_ADMIN or ROLE_STAFF)
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                            email, 
+                            null, 
+                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+                    
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }
