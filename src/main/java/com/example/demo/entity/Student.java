@@ -1,27 +1,30 @@
-// src/main/java/com/example/demo/entity/Student.java
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
-@Table(name = "students", uniqueConstraints = {
-  @UniqueConstraint(columnNames = {"email"}),
-  @UniqueConstraint(columnNames = {"rollNumber"})
-})
-@Data
+@Table(name = "students")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Student {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String name;
+    private String name;
 
-  @Column(nullable = false, unique = true)
-  private String email;
+    @Column(unique = true, nullable = false)
+    private String email;
 
-  @Column(nullable = false, unique = true)
-  private String rollNumber;
+    @Column(unique = true, nullable = false)
+    private String rollNumber;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Certificate> certificates;
 }

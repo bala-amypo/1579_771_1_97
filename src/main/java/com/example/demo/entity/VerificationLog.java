@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/entity/VerificationLog.java
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
@@ -8,21 +7,23 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "verification_logs")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class VerificationLog {
-  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "certificate_id")
-  private Certificate certificate;
+    @ManyToOne
+    @JoinColumn(name = "certificate_id")
+    private Certificate certificate;
 
-  private LocalDateTime verifiedAt;
+    private LocalDateTime verifiedAt;
 
-  private String status; // SUCCESS / FAILED
+    private String status; // SUCCESS / FAILED
 
-  private String ipAddress;
+    private String ipAddress;
 }
