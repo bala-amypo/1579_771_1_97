@@ -216,8 +216,11 @@ public class DigitalCertificateSystemTest {
     }
 
     @Test(priority = 16, groups = {"crud"})
-    public void t16_findByVerificationCode() 
-    {
-        Certificate c =
-    }
+public void t16_findByVerificationCode() {
+    Certificate c = Certificate.builder().id(200L).verificationCode("VC200").build();
+    when(certificateRepository.findByVerificationCode("VC200")).thenReturn(Optional.of(c));
+    Certificate out = certificateService.findByVerificationCode("VC200");
+    Assert.assertEquals(out.getId().longValue(), 200L);
 }
+}
+
