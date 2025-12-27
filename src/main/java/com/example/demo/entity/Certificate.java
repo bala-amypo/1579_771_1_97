@@ -9,7 +9,6 @@ public class Certificate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String verificationCode;
 
     @ManyToOne
@@ -19,18 +18,15 @@ public class Certificate {
     private CertificateTemplate template;
 
     private LocalDate issuedDate;
-
     private String qrCodeUrl;
 
-    // Getters
+    // Getters/Setters
     public Long getId() { return id; }
     public String getVerificationCode() { return verificationCode; }
     public Student getStudent() { return student; }
     public CertificateTemplate getTemplate() { return template; }
     public LocalDate getIssuedDate() { return issuedDate; }
     public String getQrCodeUrl() { return qrCodeUrl; }
-
-    // Setters
     public void setId(Long id) { this.id = id; }
     public void setVerificationCode(String verificationCode) { this.verificationCode = verificationCode; }
     public void setStudent(Student student) { this.student = student; }

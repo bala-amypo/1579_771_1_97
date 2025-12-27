@@ -17,14 +17,12 @@ public class VerificationLog {
     private String status;
     private String ipAddress;
 
-    // Getters
+    // Getters/Setters
     public Long getId() { return id; }
     public Certificate getCertificate() { return certificate; }
     public LocalDateTime getVerifiedAt() { return verifiedAt; }
     public String getStatus() { return status; }
     public String getIpAddress() { return ipAddress; }
-
-    // Setters
     public void setId(Long id) { this.id = id; }
     public void setCertificate(Certificate certificate) { this.certificate = certificate; }
     public void setVerifiedAt(LocalDateTime verifiedAt) { this.verifiedAt = verifiedAt; }
