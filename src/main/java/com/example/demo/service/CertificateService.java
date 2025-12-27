@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/CertificateService.java
 package com.example.demo.service;
 
 import com.example.demo.entity.Certificate;
@@ -6,8 +5,8 @@ import com.example.demo.entity.Certificate;
 import java.util.List;
 
 public interface CertificateService {
-  Certificate generateCertificate(Long studentId, Long templateId);
-  Certificate getCertificate(Long certificateId);
-  Certificate findByVerificationCode(String code);
-  List<Certificate> findByStudentId(Long studentId);
+    Certificate generateCertificate(Long studentId, Long templateId);
+    Certificate getCertificate(Long certificateId);
+    Certificate findByVerificationCode(String code);
+    List<Certificate> findByStudentId(Long studentId);
 }

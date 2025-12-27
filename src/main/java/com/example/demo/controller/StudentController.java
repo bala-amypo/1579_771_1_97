@@ -1,32 +1,34 @@
-// src/main/java/com/example/demo/controller/StudentController.java
 package com.example.demo.controller;
 
 import com.example.demo.entity.Student;
 import com.example.demo.service.StudentService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Students")
 @RestController
 @RequestMapping("/students")
-@Tag(name = "Students")
 public class StudentController {
 
-  private final StudentService studentService;
+    private final StudentService studentService;
 
-  public StudentController(StudentService studentService) {
-    this.studentService = studentService;
-  }
+    public StudentController(StudentService studentService) {
+        this.studentService = studentService;
+    }
 
-  @PostMapping
-  public ResponseEntity<Student> add(@RequestBody Student student) {
-    return ResponseEntity.ok(studentService.addStudent(student));
-  }
+    @Operation(summary = "Add a student")
+    @PostMapping
+    public ResponseEntity<Student> add(@RequestBody Student student) {
+        return ResponseEntity.ok(studentService.addStudent(student));
+    }
 
-  @GetMapping
-  public ResponseEntity<List<Student>> list() {
-    return ResponseEntity.ok(studentService.getAllStudents());
-  }
+    @Operation(summary = "List all students")
+    @GetMapping
+    public ResponseEntity<List<Student>> list() {
+        return ResponseEntity.ok(studentService.getAllStudents());
+    }
 }

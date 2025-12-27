@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/security/JwtUtil.java
 package com.example.demo.security;
 
 import io.jsonwebtoken.*;
@@ -10,36 +9,41 @@ import java.util.Map;
 
 public class JwtUtil {
 
-  private final Key key;
-  private final Long expirationMs;
+    private final String secret;
+    private final Long expirationMs;
+    private final Key key;
 
-  public JwtUtil(String secret, Long expirationMs) {
-    this.key = Keys.hmacShaKeyFor(secret.getBytes());
-    this.expirationMs = expirationMs;
-  }
-
-  public String generateToken(Map<String, Object> claims, String subject) {
-    Date now = new Date();
-    Date exp = new Date(now.getTime() + expirationMs);
-    return Jwts.builder()
-      .setClaims(claims)
-      .setSubject(subject)
-      .setIssuedAt(now)
-      .setExpiration(exp)
-      .signWith(key, SignatureAlgorithm.HS256)
-      .compact();
-  }
-
-  public boolean validateToken(String token) {
-    try {
-      parseToken(token);
-      return true;
-    } catch (JwtException | IllegalArgumentException e) {
-      return false;
+    public JwtUtil(String secret, Long expirationMs) {
+        this.secret = secret;
+        this.expirationMs = expirationMs;
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
-  }
 
-  public Jws<Claims> parseToken(String token) {
-    return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-  }
+    public String generateToken(Map<String, Object> claims, String subject) {
+        Date now = new Date();
+        Date exp = new Date(now.getTime() + expirationMs);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            parseToken(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public Jws<Claims> parseToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token);
+    }
 }
