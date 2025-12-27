@@ -219,3 +219,5 @@ public class DigitalCertificateSystemTest {
     public void t16_findByVerificationCode() 
     {
         Certificate c =
+    }
+}
