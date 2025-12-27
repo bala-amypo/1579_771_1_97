@@ -11,12 +11,10 @@ public class CertificateTemplate {
     private String templateName;
     private String backgroundUrl;
 
-    // Getters
+    // Getters/Setters
     public Long getId() { return id; }
     public String getTemplateName() { return templateName; }
     public String getBackgroundUrl() { return backgroundUrl; }
-
-    // Setters
     public void setId(Long id) { this.id = id; }
     public void setTemplateName(String templateName) { this.templateName = templateName; }
     public void setBackgroundUrl(String backgroundUrl) { this.backgroundUrl = backgroundUrl; }
@@ -26,8 +24,8 @@ public class CertificateTemplate {
     public static class Builder {
         private final CertificateTemplate t = new CertificateTemplate();
         public Builder id(Long id) { t.id = id; return this; }
-        public Builder templateName(String templateName) { t.templateName = templateName; return this; }
-        public Builder backgroundUrl(String backgroundUrl) { t.backgroundUrl = backgroundUrl; return this; }
+        public Builder templateName(String name) { t.templateName = name; return this; }
+        public Builder backgroundUrl(String url) { t.backgroundUrl = url; return this; }
         public CertificateTemplate build() { return t; }
     }
 }
