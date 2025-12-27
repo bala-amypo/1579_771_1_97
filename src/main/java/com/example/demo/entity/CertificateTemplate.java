@@ -1,29 +1,15 @@
 package com.example.demo.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
-@Entity
-@Table(name = "certificate_templates")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Entity @Table(name = "certificate_templates")
+@Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class CertificateTemplate {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String templateName;
-
     private String backgroundUrl;
     private String fontStyle;
     private String signatureName;
-
-    @OneToMany(mappedBy = "template", cascade = CascadeType.ALL)
-    private List<Certificate> certificates;
 }

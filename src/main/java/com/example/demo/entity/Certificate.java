@@ -4,19 +4,26 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
-@Table(name = "certificates")
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Table(name = "certificates")
 public class Certificate {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String verificationCode;
+
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
+    private String qrCodeUrl;
+
+    private LocalDate issuedDate;
 
     @ManyToOne
     @JoinColumn(name = "student_id")
@@ -25,14 +32,4 @@ public class Certificate {
     @ManyToOne
     @JoinColumn(name = "template_id")
     private CertificateTemplate template;
-
-    private LocalDate issuedDate;
-
-    private String qrCodeUrl;
-
-    @Column(unique = true, nullable = false)
-    private String verificationCode;
-
-    @OneToMany(mappedBy = "certificate", cascade = CascadeType.ALL)
-    private List<VerificationLog> logs;
 }
