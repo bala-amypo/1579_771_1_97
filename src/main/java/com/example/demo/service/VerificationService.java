@@ -1,8 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.entity.Certificate;
 import com.example.demo.entity.VerificationLog;
 
+import java.util.List;
+
 public interface VerificationService {
-    VerificationLog verifyCertificate(Certificate cert, boolean success, String ip);
+    VerificationLog verifyCertificate(String code, String ip);
+    List<VerificationLog> getLogsByCertificate(Long certificateId);
 }
