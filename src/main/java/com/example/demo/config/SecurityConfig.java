@@ -2,25 +2,24 @@ package com.example.demo.config;
 
 import com.example.demo.security.JwtFilter;
 import com.example.demo.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.secret:change-this-secret-key-32-bytes-min}")
-    private String jwtSecret;
+    private final JwtUtil jwtUtil;
 
-    @Value("${jwt.expiration-ms:3600000}")
-    private Long jwtExpirationMs;
+    public SecurityConfig(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -28,31 +27,32 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtUtil jwtUtil() {
-        return new JwtUtil(jwtSecret, jwtExpirationMs);
-    }
-
-    @Bean
-    public JwtFilter jwtFilter(JwtUtil jwtUtil) {
-        return new JwtFilter(jwtUtil);
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .csrf(csrf -> csrf.disable()) // Requirement 8.3: Disable CSRF
+            
+            // MANDATORY FOR CLOUD IDE: Allows the preview to load inside the Amypo iframe
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+            
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            .authorizeHttpRequests(auth -> auth
+                // Solve "Access Denied": Permit root and the Whitelabel error path
+                .requestMatchers("/", "/error").permitAll()
+                
+                // Requirement 8.3: Permit all auth paths
+                .requestMatchers("/auth/**").permitAll()
+                
+                // Requirement 8.3: Permit all swagger paths
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                
+                // All other paths (students, templates, certificates, etc.) require authentication
+                .anyRequest().authenticated()
+            );
+
+        // Requirement 8.3: Register JwtFilter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
     }
 }
