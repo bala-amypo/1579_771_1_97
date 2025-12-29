@@ -23,7 +23,7 @@ public class SecurityConfig {
         http
             // Disable CSRF for APIs
             .csrf(csrf -> csrf.disable())
-            // Authorize requests
+            // Define authorization rules
             .authorizeHttpRequests(auth -> auth
                 // Allow Swagger/OpenAPI endpoints
                 .requestMatchers(
@@ -36,7 +36,7 @@ public class SecurityConfig {
                 // Everything else requires JWT authentication
                 .anyRequest().authenticated()
             )
-            // Disable default Basic Auth popup
+            // 🚫 Disable Basic Auth so browser won’t show login popup
             .httpBasic(httpBasic -> httpBasic.disable())
             // Add JWT filter before UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
