@@ -1,58 +1,60 @@
 package com.example.demo.config;
 
 import com.example.demo.security.JwtFilter;
-import com.example.demo.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtUtil jwtUtil;
+    private final JwtFilter jwtFilter;
 
-    public SecurityConfig(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Requirement 8.3: Disable CSRF
-            
-            // MANDATORY FOR CLOUD IDE: Allows the preview to load inside the Amypo iframe
-            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-            
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
+            // Disable CSRF for APIs
+            .csrf(csrf -> csrf.disable())
+            // Define authorization rules
             .authorizeHttpRequests(auth -> auth
-                // Solve "Access Denied": Permit root and the Whitelabel error path
-                .requestMatchers("/", "/error").permitAll()
-                
-                // Requirement 8.3: Permit all auth paths
+                // Allow Swagger/OpenAPI endpoints
+                .requestMatchers(
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
+                // Allow authentication endpoints
                 .requestMatchers("/auth/**").permitAll()
-                
-                // Requirement 8.3: Permit all swagger paths
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                
-                // All other paths (students, templates, certificates, etc.) require authentication
+                // Everything else requires JWT authentication
                 .anyRequest().authenticated()
-            );
-
-        // Requirement 8.3: Register JwtFilter before UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+            )
+            // 🚫 Disable Basic Auth so browser won’t show login popup
+            .httpBasic(httpBasic -> httpBasic.disable())
+            // Add JWT filter before UsernamePasswordAuthenticationFilter
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // Expose AuthenticationManager bean for login service
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    // Password encoder for hashing user passwords
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
