@@ -1,52 +1,58 @@
 package com.example.demo.config;
 
 import com.example.demo.security.JwtFilter;
+import com.example.demo.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+    private final JwtUtil jwtUtil;
 
-    public SecurityConfig(JwtFilter jwtFilter) {
-        this.jwtFilter = jwtFilter;
+    public SecurityConfig(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // Disable CSRF for APIs
-            .csrf(csrf -> csrf.disable())
-            // Define authorization rules
+            .csrf(csrf -> csrf.disable()) // Requirement 8.3: Disable CSRF
+            
+            // MANDATORY FOR CLOUD IDE: Allows the preview to load inside the Amypo iframe
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+            
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
             .authorizeHttpRequests(auth -> auth
-                // Allow Swagger/OpenAPI endpoints
-                .requestMatchers(
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
-                ).permitAll()
-                // Allow authentication endpoints
+                // Solve "Access Denied": Permit root and the Whitelabel error path
+                .requestMatchers("/", "/error").permitAll()
+                
+                // Requirement 8.3: Permit all auth paths
                 .requestMatchers("/auth/**").permitAll()
-                // Everything else requires JWT authentication
+                
+                // Requirement 8.3: Permit all swagger paths
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                
+                // All other paths (students, templates, certificates, etc.) require authentication
                 .anyRequest().authenticated()
-            )
-            // 🚫 Disable Basic Auth so browser won’t show login popup
-            .httpBasic(httpBasic -> httpBasic.disable())
-            // Add JWT filter before UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            );
+
+        // Requirement 8.3: Register JwtFilter before UsernamePasswordAuthenticationFilter
+        http.addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    // Expose AuthenticationManager bean for login service
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
     }
 }
